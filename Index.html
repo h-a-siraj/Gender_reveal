@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Special Announcement</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #ffe6fa, #f8f1ff, #e8f0ff);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    #container {
+        width: 92%;
+        max-width: 550px;
+        margin-top: 40px;
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        animation: fadeUp 0.7s ease;
+    }
+
+    @keyframes fadeUp {
+        from {opacity: 0; transform: translateY(30px);}
+        to   {opacity: 1; transform: translateY(0);}
+    }
+
+    .step {
+        display: none;
+        text-align: center;
+        animation: fade 0.4s ease;
+    }
+
+    @keyframes fade {
+        from {opacity: 0;}
+        to   {opacity: 1;}
+    }
+
+    h2 {
+        font-weight: 600;
+        color: #8a49ff;
+    }
+
+    button {
+        padding: 12px 24px;
+        background: #8a49ff;
+        border: none;
+        color: white;
+        font-size: 16px;
+        border-radius: 10px;
+        margin-top: 15px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button:hover {
+        background: #6d38cc;
+        transform: scale(1.05);
+    }
+
+    input, select {
+        padding: 12px;
+        width: 80%;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 15px;
+    }
+
+    #guessList {
+        margin-top: 20px;
+        background: #faf5ff;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: left;
+    }
+
+    .revealed {
+        font-size: 32px;
+        color: #ff3f9f;
+        font-weight: 700;
+        animation: pop 1s ease;
+    }
+
+    @keyframes pop {
+        0%   {transform: scale(0.3); opacity: 0;}
+        100% {transform: scale(1); opacity: 1;}
+    }
+
+    #musicToggle {
+        margin-top: 15px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #444;
+        text-decoration: underline;
+    }
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/10/12/audio_bf3663a2b1.mp3?filename=sweet-ambient-11176.mp3" type="audio/mp3">
+</audio>
+
+<div id="container">
+
+    <!-- Step 1 -->
+    <div class="step" id="step1" style="display:block;">
+        <h2>Welcome 💕</h2>
+        <p>We have a beautiful surprise to share with you.</p>
+
+        <div id="musicToggle" onclick="toggleMusic()">🎵 Play / Pause Music</div>
+
+        <button onclick="nextStep(2)">Continue</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step" id="step2">
+        <h2>Before the reveal…</h2>
+        <p>Let’s see your prediction!</p>
+        <button onclick="nextStep(3)">Make a Prediction</button>
+    </div>
+
+    <!-- Step 3: Prediction Game -->
+    <div class="step" id="step3">
+        <h2>Guess the Baby’s Gender</h2>
+
+        <input id="userName" type="text" placeholder="Enter your name">
+        <br><br>
+
+        <select id="genderGuess">
+            <option value="">Choose your guess</option>
+            <option value="Boy">Boy</option>
+            <option value="Girl">Girl</option>
+        </select>
+
+        <br><br>
+        <button onclick="submitGuess()">Submit Guess</button>
+
+        <div id="guessList"></div>
+
+        <button onclick="nextStep(4)">Next</button>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step" id="step4">
+        <h2>The moment is here…</h2>
+        <button onclick="reveal()">Reveal</button>
+    </div>
+
+    <!-- Step 5: Final Reveal -->
+    <div class="step" id="step5">
+        <div class="revealed">🎀 It's a Girl! 🎀</div>
+
+        <p style="margin-top:20px; font-size:16px;">
+            <strong>Dua:</strong><br><br>
+            May Allah bless this precious baby girl with health, happiness, imaan, and 
+            a beautiful future filled with light and guidance.  
+            May she grow among the righteous and bring endless joy to her family. Ameen 🤍
+        </p>
+
+        <p style="margin-top:20px; font-size:15px; color:#555;">
+            And may Allah bless her loving elder sister, <strong>Zainab</strong>,  
+            with a beautiful bond full of love, protection, and lifelong friendship. 💖
+        </p>
+    </div>
+
+</div>
+
+<!-- Confetti Script -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+let guesses = [];
+
+/* Step Navigation */
+function nextStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+    document.getElementById('step' + n).style.display = 'block';
+}
+
+/* Guess Submission */
+function submitGuess() {
+    const name = document.getElementById("userName").value.trim();
+    const guess = document.getElementById("genderGuess").value;
+
+    if (!name || !guess) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    guesses.push({ name, guess });
+    updateList();
+
+    document.getElementById("userName").value = "";
+    document.getElementById("genderGuess").value = "";
+}
+
+function updateList() {
+    const div = document.getElementById("guessList");
+
+    div.innerHTML = "<h4>Previous Predictions:</h4>" +
+        guesses.map(g => `<p><strong>${g.name}</strong> guessed: ${g.guess}</p>`).join("");
+}
+
+/* Confetti + Reveal */
+function reveal() {
+    nextStep(5);
+
+    // Confetti blast
+    confetti({ particleCount: 300, spread: 80, origin: { y: 0.6 } });
+
+    // continuous soft confetti
+    let duration = 2000;
+    let end = Date.now() + duration;
+
+    (function frame() {
+        confetti({
+            particleCount: 5,
+            spread: 60
+        });
+        if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+}
+
+/* Music Toggle */
+function toggleMusic() {
+    const music = document.getElementById("bgMusic");
+    if (music.paused) music.play();
+    else music.pause();
+}
+</script>
+
+</body>
+</html>
